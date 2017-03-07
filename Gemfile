@@ -9,6 +9,8 @@ gem 'rake'
 gem 'rspec', '~> 3.0'
 gem 'rspec-puppet', '~> 2.3'
 gem 'rspec-puppet-facts', '>= 1.7'
+gem 'beaker-rspec', {"groups"=>["system_tests"]}
+gem 'beaker-puppet_install_helper', {"groups"=>["system_tests"]}
 gem 'puppetlabs_spec_helper', '>= 0.8.0'
 gem 'puppet-lint', '>= 2'
 gem 'puppet-lint-unquoted_string-check'
