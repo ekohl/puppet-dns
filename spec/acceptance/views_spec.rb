@@ -34,14 +34,12 @@ describe 'Scenario: install bind with views enabled' do
       dns::zone { 'example.com-v4':
         zone         => 'example.com',
         soa          => 'ns1-v4.example.com',
-        filename     => 'db.example.com-v4',
         target_views => ['v4'],
       }
 
       dns::zone { 'example.com-v6':
         zone         => 'example.com',
         soa          => 'ns1-v6.example.com',
-        filename     => 'db.example.com-v6',
         target_views => ['v6'],
       }
       EOS

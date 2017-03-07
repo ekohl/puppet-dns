@@ -15,10 +15,10 @@ define dns::zone (
     $allow_transfer = [],
     $allow_query    = [],
     $also_notify    = [],
-    $zone           = undef,
+    $zone           = $title,
     $contact        = undef,
     $zonefilepath   = $::dns::zonefilepath,
-    $filename       = undef,
+    $filename       = "db.${title}",
     $manage_file    = true,
     $forward        = 'first',
     $forwarders     = [],
@@ -32,11 +32,9 @@ define dns::zone (
     validate_re($dns_notify, '^(yes|no|explicit)$', 'Only \'yes\', \'no\', or \'explicit\' are valid values for dns_notify field')
   }
 
-  if $zone     == undef { $_zone = $title } else { $_zone = $zone }
-  if $contact  == undef { $_contact  = "root.${_zone}." } else { $_contact = $contact }
-  if $filename == undef { $_filename = "db.${_zone}" } else { $_filename = $filename }
+  $_contact = pick($contact, "root.${zone}.")
 
-  $zonefilename = "${zonefilepath}/${_filename}"
+  $zonefilename = "${zonefilepath}/${filename}"
 
   if $::dns::enable_views {
     if $target_views == undef or size($target_views) == 0 {
@@ -46,7 +44,7 @@ define dns::zone (
       $_target_views = $target_views
     }
   } else {
-      $_target_views = ['_GLOBAL_']
+    $_target_views = ['_GLOBAL_']
   }
 
   if $zonetype == 'slave' {
@@ -55,19 +53,31 @@ define dns::zone (
     $_dns_notify = $dns_notify
   }
 
-  create_viewzones($_target_views)
+  if $_target_views != [] {
+    dns::view::zone { $_target_views:
+      zone           => $zone,
+      zonetype       => $zonetype,
+      forward        => $forward,
+      forwarders     => $forwarders,
+      manage_file    => $manage_file,
+      zonefilename   => $zonefilename,
+      allow_transfer => $allow_transfer,
+      allow_query    => $allow_query,
+      also_notify    => $also_notify,
+      masters        => $masters,
+      dns_notify     => $_dns_notify,
+    }
+  }
 
   if $manage_file {
-    unless defined(File[$zonefilename]) {
-      file { $zonefilename:
-        ensure  => file,
-        owner   => $dns::user,
-        group   => $dns::group,
-        mode    => '0644',
-        content => template('dns/zone.header.erb'),
-        replace => false,
-        notify  => Service[$::dns::namedservicename],
-      }
+    file { $zonefilename:
+      ensure  => file,
+      owner   => $dns::user,
+      group   => $dns::group,
+      mode    => '0644',
+      content => template('dns/zone.header.erb'),
+      replace => false,
+      notify  => Service[$::dns::namedservicename],
     }
   }
 }
