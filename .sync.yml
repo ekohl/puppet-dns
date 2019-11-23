@@ -1,10 +1,10 @@
 ---
-.travis.yml:
+.github/workflows/acceptance.yml:
   beaker_sets:
-    - centos6-64
-    - debian8-64
-    - debian9-64
-    - debian10-64
+    - centos6
+    - debian8
+    - debian9
+    - debian10
 Rakefile:
   param_docs_pattern:
     - manifests/init.pp
